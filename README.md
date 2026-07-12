@@ -10,6 +10,7 @@
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9+-yellow.svg)](https://www.python.org/)
 [![Claude Code](https://img.shields.io/badge/main-Claude_Code_stable-d97706.svg)](https://docs.anthropic.com/en/docs/claude-code)
 [![Codex Preview](https://img.shields.io/badge/Codex-preview-111111.svg)](https://developers.openai.com/codex)
+[![OpenCode Preview](https://img.shields.io/badge/OpenCode-preview-6f42c1.svg)](https://opencode.ai/)
 [![arXiv](https://img.shields.io/badge/arXiv-2605.31468-b31b1b.svg)](https://arxiv.org/abs/2605.31468)
 [![Status](https://img.shields.io/badge/status-internal_beta-orange.svg)](#️⃣-status--update)
 
@@ -22,14 +23,38 @@
 
 > **Thanks to everyone who's been trying AutoSci — the community response has been amazing!** AutoSci evolved from our earlier OmegaWiki prototype into what we're building toward: a next-generation research agent that can handle the full scientific lifecycle. We're actively testing and iterating on new features, and more capabilities are on the way. Jump in, break things, and tell us what you think — your feedback and ideas are what's shaping where this goes next. 🙏
 
-> **🌿 Which branch?** [`main`](https://github.com/skyllwt/AutoSci/tree/main) remains the **stable Claude Code version**. This [`migrate-codex`](https://github.com/skyllwt/AutoSci/tree/migrate-codex) branch is the **official Codex Preview**: local Codex skills are available under `.agents/skills`, while Claude Code compatibility is preserved under `.claude/skills`. The **full system described in our [paper](https://arxiv.org/abs/2605.31468)** — SciMem · SciFlow · SciDAG · SciEvolve — lives on the [`paper`](https://github.com/skyllwt/AutoSci/tree/paper) branch (frozen as tag [`arxiv-v1`](https://github.com/skyllwt/AutoSci/tree/arxiv-v1)).
+> **🌿 Which branch?** [`main`](https://github.com/skyllwt/AutoSci/tree/main) remains the **stable Claude Code version**. [`autosci-codex`](https://github.com/skyllwt/AutoSci/tree/autosci-codex) is the **official Codex Preview**, and [`autosci-opencode`](https://github.com/skyllwt/AutoSci/tree/autosci-opencode) is the **official OpenCode Preview**. These are separate runtime adaptations; the existing Claude Code and Codex versions remain available. The **full system described in our [paper](https://arxiv.org/abs/2605.31468)** — SciMem · SciFlow · SciDAG · SciEvolve — lives on the [`paper`](https://github.com/skyllwt/AutoSci/tree/paper) branch (frozen as tag [`arxiv-v1`](https://github.com/skyllwt/AutoSci/tree/arxiv-v1)).
+
+### OpenCode Preview
+
+Try the OpenCode adaptation without changing your Claude Code or Codex checkout:
+
+```bash
+git clone -b autosci-opencode https://github.com/skyllwt/AutoSci.git
+cd AutoSci
+./setup.sh --lang en
+opencode
+# Then ask OpenCode to run the init skill for your research topic.
+```
+
+Current boundary:
+
+| Area | Status |
+|---|---|
+| Local OpenCode skills | Preview supported via generated `.opencode/skills` |
+| Runtime instructions | Root `AGENTS.md`, generated from the selected language |
+| Shared skill source | `i18n/<lang>/skills` remains the bilingual source of truth |
+| Review LLM | Local `llm-review` MCP configured through generated `opencode.json` |
+| Daily arXiv | Recommendation-only; standalone OpenAI-compatible API with deterministic fallback and optional email |
+
+The OpenCode preview does not replace the Claude Code stable release or the Codex Preview.
 
 ### Codex Preview
 
 Try the Codex preview without changing your `main` checkout:
 
 ```bash
-git clone -b migrate-codex https://github.com/skyllwt/AutoSci.git
+git clone -b autosci-codex https://github.com/skyllwt/AutoSci.git
 cd AutoSci
 ./setup.sh --lang en
 codex
@@ -41,10 +66,10 @@ Current boundary:
 | Area | Status |
 |---|---|
 | Local Codex skills | Preview supported via `.agents/skills` |
-| Claude Code skills | Still supported via `.claude/skills` |
-| Shared skill source | `i18n/<lang>/skills` regenerates both active skill trees |
-| Daily arXiv CI inform recommendations | Codex supported |
-| Daily arXiv CI auto-ingest/writeback | Still uses the legacy Claude Code Action path until unattended Codex writeback is verified |
+| Runtime scope | Codex-only; Claude Code remains available separately on `main` |
+| Shared skill source | `i18n/<lang>/skills` regenerates the active `.agents/skills` tree |
+| Review LLM | Optional `llm-review` MCP configured through the Codex config example |
+| Daily arXiv | CI is recommendation-only; no repository writeback or unattended ingest |
 
 See [docs/codex-preview.md](docs/codex-preview.md) for the preview notes and known boundaries.
 
@@ -97,10 +122,13 @@ If you find AutoSci useful in your research, please [cite our paper](#citation).
 
 ## 🆕 What's New
 
-### 🛠️ 2026-07-10 · migrate-codex branch codex adaptation
+### 🛠️ 2026-07-12 · OpenCode Preview adaptation
 
-Ported the project from a Claude Code-first baseline to a Codex-adapted branch on top of `main`: standardized runtime-facing docs, aligned setup/sync behavior, and updated workflow expectations for Codex compatibility.  
-Key functional change in this cycle: `/research` no longer auto-implements bootstrap ingest logic on cold wiki; it now delegates bootstrap explicitly to `/init` / `$init` and proceeds only after bootstrap completion.
+Published a separate OpenCode adaptation while keeping the existing Claude Code stable release and Codex Preview available. The OpenCode branch provides bilingual project skills under `.opencode/skills`, root `AGENTS.md` instructions, generated machine-local configuration, and `llm-review` MCP integration. Its daily-arXiv automation is recommendation-only and uses a standalone OpenAI-compatible API with deterministic fallback, optional best-effort email, and digest artifacts without repository writeback.
+
+### 🛠️ 2026-07-10 · autosci-codex branch adaptation
+
+Published a separate Codex-only adaptation while keeping the stable Claude Code release on `main` and the OpenCode Preview on `autosci-opencode`. The Codex branch provides bilingual skills under `.agents/skills`, root `AGENTS.md` instructions, Codex-specific setup and Review LLM configuration, and recommendation-only daily-arXiv CI without Claude Action authentication, automatic ingest, or repository writeback. The `$research` workflow delegates cold-wiki bootstrap to `$init` and proceeds only after bootstrap completes.
 
 ### 🛠️ 2026-05-19 · Experiment Overhaul
 
@@ -275,13 +303,39 @@ The following papers were generated end-to-end using AutoSci — from literature
 
 ---
 
+## OpenCode Preview Quick Start
+
+**Prerequisites:** Python 3.9+, Node.js 18+, and OpenCode
+
+```bash
+# 1. Clone the OpenCode Preview branch
+git clone -b autosci-opencode https://github.com/skyllwt/AutoSci.git
+cd AutoSci
+
+# 2. Verify OpenCode
+opencode --version
+
+# 3. Generate the local environment, skills, AGENTS.md, and opencode.json
+chmod +x setup.sh && ./setup.sh --lang en
+
+# 4. Add your papers and optional notes
+#    raw/papers/  raw/notes/  raw/web/
+
+# 5. Start OpenCode and load the init skill
+opencode
+```
+
+The generated `.opencode/` tree and `opencode.json` are machine-local and should not be committed. The English and Chinese sources under `i18n/` remain authoritative.
+
+---
+
 ## Codex Preview Quick Start
 
 **Prerequisites:** Python 3.9+, Node.js 18+
 
 ```bash
 # 1. Clone the Codex Preview branch
-git clone -b migrate-codex https://github.com/skyllwt/AutoSci.git
+git clone -b autosci-codex https://github.com/skyllwt/AutoSci.git
 cd AutoSci
 
 # 2. Install and sign in to Codex
@@ -292,7 +346,7 @@ codex --version
 chmod +x setup.sh && ./setup.sh        # Linux / macOS
 # Windows (PowerShell):
 #   powershell -ExecutionPolicy Bypass -File .\setup.ps1
-# setup creates .venv and syncs both .claude/skills and .agents/skills
+# setup creates .venv and syncs the Codex `.agents/skills` tree
 
 # 4. Put your own papers in raw/papers/ (.tex or .pdf)
 #    Optional: intent notes in raw/notes/, saved pages in raw/web/
@@ -302,9 +356,11 @@ codex
 # Then invoke: $init [your-research-topic]
 ```
 
-Claude Code users can still use the same checkout:
+Claude Code users should use the stable `main` branch instead:
 
 ```bash
+git clone -b main https://github.com/skyllwt/AutoSci.git
+cd AutoSci
 npm install -g @anthropic-ai/claude-code
 claude login
 claude
